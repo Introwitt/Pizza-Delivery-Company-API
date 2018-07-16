@@ -6,8 +6,6 @@
 
 // Dependencies
 var server = require("./lib/server");
-var workers = require("./lib/workers");
-var helpers = require("./lib/helpers");
 
 // Declare the app object
 var app = {};
