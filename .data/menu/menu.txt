@@ -1,0 +1,76 @@
+===========
+MENU
+===========
+
+
+
+-------Vegetarian-------
+
+DELUX VEGGIE - Veg delight - onion | capsicum | grilled mushroom | paneer | corn
+
+   R : 235.00                      M : 450.00                         	L : 695.00  
+
+
+VEG EXTRAVAGANZA - Black olives | onion | grilled mushroom | capsicum | corn | tomato
+
+   R : 235.00                      M : 450.00                         	L : 695.00
+
+
+5 PEPPER - Delight of capsicum | yellow | red bell peppers | red chilli onion
+
+   R : 235.00                      M : 450.00                         	L : 695.00
+
+
+FARMHOUSE - Delightful combination of tomato | onion | capsicum | grilled mushroom
+
+   R : 235.00                      M : 450.00                           L : 695.00
+
+
+
+
+
+-------Non-Vegetarian-------
+
+NON VEG SUPREME - Supreme combination of black olives | onion | capsicum | grilled mushroom |pepper barbecue chicken | peri-peri chicken
+
+   R : 295.00                      M : 555.00                         	L : 835.00  
+
+
+CHICKEN DOMINATOR - Loaded with double pepper barbecue chicken | peri-peri chicken | chicken tikka | grilled chicken rashers
+
+   R : 295.00                      M : 555.00                         	L : 835.00
+
+
+CHICKEN GOLDEN DELIGHT - Double pepper barbecue chicken | golden corn and extra cheese | true delight
+
+   R : 295.00       			   M : 555.00                         	L : 835.00
+
+CHICKEN FIESTA - Grilled chicken rashers | peri-peri chicken | onion | capsicum | a complete fiesta
+
+   R : 295.00                      M : 555.00                         	L : 835.00
+
+
+
+
+
+-------Crust-------
+
+New Hand Tossed  : 0.00 (Default)
+
+Wheat Thin Crust : 50.00
+
+Cheese Burst     : 199.00
+
+
+
+
+
+-------Sides-------
+
+Coke                : 45.00
+
+Lava Cake           : 95.00
+
+Garlic Bread-Sticks : 99.00
+
+
