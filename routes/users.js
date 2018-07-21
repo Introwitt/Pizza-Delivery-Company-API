@@ -22,8 +22,7 @@ userHandlers.users = function(data, callback){
         userHandlers._users[data.method](data, callback);
     } else{
         callback(405);
-    }
-    
+    }   
 }
 
 // Container for the users submethods
