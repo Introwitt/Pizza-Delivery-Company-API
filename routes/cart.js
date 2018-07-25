@@ -68,7 +68,7 @@ cartHandlers._cart.post = function(data, callback){
                                 "itemId"      : itemData.id,  
                                 "size"        : size,
                                 "crust"       : crust,
-                                "totalAmount" : helpers.calculateAmount(itemData.price[size],crust)
+                                "amount"      : helpers.calculateCartAmount(itemData.price[size],crust)
                             }
                            
 
@@ -186,7 +186,7 @@ cartHandlers._cart.put = function(data, callback){
                     // Update the total amount of cart
                     _data.read("items", cartData.itemId, function(err, itemData){
                         if(!err && itemData){
-                            cartData.totalAmount = helpers.calculateAmount(itemData.price[cartData.size],cartData.crust);
+                            cartData.amount = helpers.calculateAmount(itemData.price[cartData.size],cartData.crust);
                             // Update the cart 
                             _data.update("cart", cartId, cartData, function(err){
                                 if(!err){
@@ -280,6 +280,36 @@ cartHandlers._cart.delete = function(data, callback){
 
     } else{
         callback(400, {"Error" : "The given cartId is invalid"})
+    }
+}
+
+
+// Handler to fetch the cart items
+cartHandlers.fetchCart = function(cartItems, callback){
+    var data =[];
+    var length = cartItems.length;
+    if(length == undefined){
+        callback(200, {"Message" : "Cart is empty"});
+    }
+    for(i=0; i<length; i++){
+        _data.read("cart", cartItems[i], function(err, cartData){
+            var email = cartData.email;
+            var phone = cartData.phone;
+
+            // Remove the cart id,item id,name,email before displaying to the user
+            delete cartData.cartId;
+            delete cartData.itemId;
+            delete cartData.email;
+            delete cartData.phone;
+
+            data.push(cartData);
+            if(data.length == cartItems.length){
+                callback(200,
+                    {"Email": email,
+                    "Phone" : phone,
+                    "Items": data});
+            }
+        })
     }
 }
 
