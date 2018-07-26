@@ -1,5 +1,5 @@
 ===========
-MENU
+MENU (Amount in cents)
 ===========
 
 
@@ -8,7 +8,7 @@ MENU
 
 DELUX VEGGIE - Veg delight - onion | capsicum | grilled mushroom | paneer | corn
 
-   S : 235.00                      R : 450.00                         	L : 695.00  
+   S : 235.00                     R : 450.00                         	L : 695.00  
 
 
 VEG EXTRAVAGANZA - Black olives | onion | grilled mushroom | capsicum | corn | tomato
@@ -18,7 +18,7 @@ VEG EXTRAVAGANZA - Black olives | onion | grilled mushroom | capsicum | corn | t
 
 5 PEPPER - Delight of capsicum | yellow | red bell peppers | red chilli onion
 
-   S : 235.00                      R : 450.00                         	L : 695.00
+   S : 235                      R : 450.00                         	L : 695.00
 
 
 FARMHOUSE - Delightful combination of tomato | onion | capsicum | grilled mushroom

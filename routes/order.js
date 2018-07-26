@@ -50,7 +50,7 @@ orderHandlers._order.post = function(data, callback){
         // Verify that the token received is valid for the user
         tokenHandlers._tokens.verifyToken(token, phone, function(isValidToken){
             if(isValidToken){
-                // Get the cart items fromthe user
+                // Get the cart items from the user
                 _data.read("users", phone, function(err, userData){
                     if(!err && userData){
                         // Give the information regarding cart items
@@ -68,24 +68,24 @@ orderHandlers._order.post = function(data, callback){
                                     "email"       : userData.email,
                                     "orderId"     : orderId,
                                     "items"       : cartData.Items,
-                                    "paymentProcessed" : false,
-                                    "totalAmount" : helpers.calculateOrderAmount(cartData.Items)                                    
+                                    "totalAmount" : helpers.calculateOrderAmount(cartData.Items),    
+                                    "paymentProcessed" : false                           
                                 }
                                 
                                 // Process the payment using STRIPE
                                 
                                 // Configure the request payload
-                                var payload = {
+                                var stripePayload = {
                                     "currency"    : "usd",
                                     "amount"      : orderObject.totalAmount,
                                     "description" : "charges for this orderId" ,
                                     "source"      : "tok_visa"
                                 }
 
-                                var stringPayload = queryString.stringify(payload);
+                                var stringStripePayload = queryString.stringify(stripePayload);
                                 
                                 // Configure the request details
-                                var requestDetails = {
+                                var stripeRequestDetails = {
                                     "protocol" : "https:",
                                     "hostname" : "api.stripe.com",
                                     "method"   : "POST",
@@ -93,13 +93,13 @@ orderHandlers._order.post = function(data, callback){
                                     "path"     : "/v1/charges",
                                     "headers"  : {
                                         "Content-Type"  :"application/x-www-form-urlencoded",
-                                        "Content-Length": Buffer.byteLength(stringPayload),
+                                        "Content-Length": Buffer.byteLength(stringStripePayload),
                                         "Authorization" : "Bearer "+ config.stripe.secret
                                     }
                                 }
 
                                 // Instantiate the request object
-                                var req = https.request(requestDetails,function(res){
+                                var stripeReq = https.request(stripeRequestDetails,function(res){
                                     // Grab the status of the sent request
                                     var status =  res.statusCode;
                                     // Callback successfully if the request went through
@@ -110,26 +110,94 @@ orderHandlers._order.post = function(data, callback){
                                         // Save the object
                                         _data.create("order", orderId, orderObject, function  (err){
                                             if(!err){
-                                                callback(200,orderObject);
+                                                
+                                                // Notify the user using MAILGUN
+
+                                                // Configure the request payload
+                                                var mailgunPayload ={
+                                                    "from" : config.mailgun.from,
+                                                    "to"   : userData.email,
+                                                    "subject" : "Payment Info for orderid " + orderId,
+                                                    "text"     : "Payment succesfully done for " + orderObject  
+                                                }
+
+                                                var stringMailgunPayload = queryString.stringify(mailgunPayload);
+
+                                                // Configure the request details
+                                                var mailgunRequestDetails = {
+                                                    "protocol" : "https:",
+                                                    "hostname" : "api.mailgun.net",
+                                                    "path"      : "/v3/sandbox4494b3e8468445cd81f94823537b614e.mailgun.org",
+                                                    "port"      : 443,
+                                                    "method"    : "POST",
+                                                    "headers": {
+                                                        "Content-Type": "application/x-www-form-urlencoded",
+                                                        "Content-Length": Buffer.byteLength(stringMailgunPayload),
+                                                        "auth" : "api:"+ config.mailgun.apiKey
+                                                    }
+                                                }
+
+                                                // Instantiate the request object
+                                                var mailgunReq = https.request(mailgunRequestDetails,function(res){
+                                                    // Grab the status of the sent request
+                                                    var status =  res.statusCode;
+                                                   
+                                                    // Callback successfully if the request went through
+                                                    if(status == 200 || status == 201){
+                                                        // Remove all the cart items
+                                                        userData.cart = [];
+
+                                                        // Add the orderId to the users' data
+                                                        var userOrders = typeof(userData.orders) == "object" && userData.orders instanceof Array ? userData.orders : [];
+
+                                                        userData.orders = userOrders;
+                                                        userData.orders.push(orderId);
+
+                                                        // Save the new user data
+                                                        _data.update("users", phone, userData, function(err){
+                                                            if(!err){
+                                                                orderObject.totalAmount += " cents";
+                                                                callback(200,{"Your Order" : orderObject});
+                                                            } else{
+                                                                callback(500, {"Error" : "Couldn't update the user data for new order"});
+                                                            }
+                                                        })                                                        
+                                                    } else{
+                                                        callback(400, {"Error": "Could not email the order receipt"})
+                                                    }
+                                                });
+
+                                                // Bind to the error event so it doesn't get thrown
+                                                mailgunReq.on('error',function(e){
+                                                    callback(e);
+                                                });
+  
+                                                // Add the payload
+                                                mailgunReq.write(stringMailgunPayload);
+  
+                                                // End the mailgunRequest
+                                                mailgunReq.end();
+
                                             } else{
-                                                callback(500, {"Error" : "Could not create the order"})
+                                                callback(500, {"Error" : "Could not create the order for the user"})
                                             }
                                         })
+                                        
                                     } else {
                                         callback(400,{"Error" : "Transaction failure"});
                                     }
                                 });
 
                                 // Bind to the error event so it doesn't get thrown
-                                req.on('error',function(e){
+                                stripeReq.on('error',function(e){
                                     callback(e);
                                 });
   
                                 // Add the payload
-                                req.write(stringPayload);
+                                stripeReq.write(stringStripePayload);
   
-                                // End the request
-                                req.end();
+                                // End the stripeRequest
+                                stripeReq.end();
                             });
 
                         } else{
@@ -149,6 +217,39 @@ orderHandlers._order.post = function(data, callback){
     }
 }
 
+// Order - Get
+// Required Data - orderId, token
+// Optional Data - None
+
+orderHandlers._order.get = function(data, callback){
+
+    // Receive the required fields
+    var orderId = typeof(data.queryStringObject.id) == "string" && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim(): false;
+
+    if(orderId){
+        // Lookup the order
+        _data.read("order",orderId, function(err, orderData){
+            if(!err && orderData){
+                // Get the token from the users
+                var token = typeof(data.headers.token) == "string" ? data.headers.token : false;
+
+                // Verify that the token received is valid for the user
+                tokenHandlers._tokens.verifyToken(token, orderData.phone, function(isValidToken){
+                    if(isValidToken){
+                        callback(200, orderData);
+                    } else{
+                        callback(400,{"Error" : "Not authorised"});
+                    }
+                })    
+            } else{
+                callback(400, {"Error" : "Order Id not found"});
+            }
+        })
+    } else{
+        callback(400,{"Error" : "Missing required fields"});
+    }
+}
+        
 
 // Export the order handler
 module.exports = orderHandlers;
