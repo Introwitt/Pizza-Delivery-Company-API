@@ -51,12 +51,12 @@ itemHandlers._items.post = function(data, callback){
             if(!err){
                 callback(200, itemObject);
             } else{
-                callback(500, {Error: "Couldn't create the item"});
+                callback(500, {"Error": "Couldn't create the item"});
             }
         })           
 
     } else{
-        callback(400,{Error : "Missing required fields"});
+        callback(400,{"Error" : "Required fields missing or they were invalid"});
     }
 }
 
@@ -65,20 +65,26 @@ itemHandlers._items.post = function(data, callback){
 // Required Data - itemId
 // Opptional data - none
 itemHandlers._items.get = function(data, callback){
-    // Check if the checkId is valid
-   var id = typeof(data.queryStringObject.id) == "string" && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim() : false;
+    // Check if the itemId is valid
+    var id = typeof(data.queryStringObject.id) == "string" && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim() : false;
 
-   if(id){
-       // Look up the item
-       _data.read("items", id, function(err, itemData){
-           if(!err && itemData){            
+    if(id){
+        // Look up the item
+        _data.read("items", id, function(err, itemData){
+            if(!err && itemData){            
                 callback(200, itemData);
             } else{
-                callback(404, {Error : "Not found"});
+                callback(404, {"Error" : "Item not found for the given id"});
             }
         });       
     } else{
-        callback(400, {"Error" : "Missing required field"});
+        _data.list("items", function(err, itemsList){
+            if(!err && itemsList){
+                callback(200, itemsList);
+            } else{
+                callback(404,{"Error": "No items in the list"})
+            }
+        })
     }
 }
 
@@ -112,18 +118,18 @@ itemHandlers._items.put = function(data, callback){
                     if(!err){
                         callback(200);
                     } else{
-                        callback(500, {"Error": "Couldn't update the item data"});
+                        callback(500, {"Error": "Couldn't update the items' data"});
                     }
                 })            
             } else{
-                callback(404, {"Error" : "Missing Required fields"});
+                callback(400, {"Error" : "Required fields missing or they were invalid"});
             } 
         } else{
-            callback(403);
+            callback(404,{"Error": "Item not found"});
         }
     });
     } else{
-        callback(404, {"Error" : "Missing Required fields"});
+        callback(400, {"Error" : "Required fields missing or they were invalid"});
     }    
 }
 

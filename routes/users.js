@@ -64,7 +64,7 @@ userHandlers._users.post = function(data, callback){
                         if(!err){
                             callback(200);
                         } else{
-                            console.log(err);
+                            
                             callback(500,{"Error" : "Couldn't create the new user"});
                         }
                     });
@@ -81,14 +81,14 @@ userHandlers._users.post = function(data, callback){
         });
 
     } else{
-        callback(400, {"Error": "Missing required fields"});
+        callback(400, {"Error": "Required fields missing or they were invalid"});
     }
 
 }
 
 // Users - Get
 // Required Data - Phone
-// Opptional data - none
+// Optional data - none
 userHandlers._users.get = function(data, callback){
     // Check if the phone no is valid
     var phone = typeof(data.queryStringObject.phone) == "string" && data.queryStringObject.phone.trim().length == 10 ? data.queryStringObject.phone.trim(): false;
@@ -107,17 +107,17 @@ userHandlers._users.get = function(data, callback){
                 delete data.hashedPassword;
                 callback(200, data);
                 } else{
-                    callback(404, {Error : "Not found"});
+                    callback(404, {"Error" : "User not found"});
                 }
             });
 
           } else{
-            callback(403,{"Error": "Missing required token in header or token is invalid"});
+            callback(403,{"Error": "Unauthorized Access(Token missing or invalid)"});
           }
        })
               
    } else{
-       callback(400, {Error : "Missing required field"});
+       callback(400, {"Error" : "Required fields missing or they were invalid"});
    }
 }
 
@@ -172,21 +172,21 @@ userHandlers._users.put = function(data, callback){
                         })
     
                     } else{
-                        callback(400, {"Error" : "User not found"});
+                        callback(404, {"Error" : "User not found"});
                     }
                 })
             } else{
-                callback(400, {"Error": "Missing required field"});
+                callback(400, {"Error": "Required fields missing or they were invalid"});
             }
 
         } else{
-            callback(403,{"Error": "Missing required token in header or token is invalid"});
+            callback(403,{"Error": "Unauthorized Access(Token missing or invalid)"});
         }
     });
 
        
     } else{
-        callback(400, {"Error" : "Missing required field"});
+        callback(400, {"Error" : "Required fields missing or they were invalid"});
     }
 
 }
@@ -214,19 +214,19 @@ userHandlers._users.delete = function(data, callback){
                         if(!err){
                             callback(200);
                         } else {
-                            callback(500,{'Error' : 'Could not delete the specified user'});
+                            callback(500,{"Error" : "Couldn't delete the specified user"});
                         }
                     });
                 } else {
-                    callback(400,{'Error' : 'Could not find the specified user.'});
+                    callback(404,{"Error" : "User not found"});
                 }
             });
             } else{
-                callback(403,{'Error': 'Missing required token in header or token is invalid'});
+                callback(403,{"Error": "Unauthorized Access(Token missing or invalid)"});
             }
         });       
         } else {
-            callback(400,{'Error' : 'Missing required field'})
+            callback(400,{"Error" : 'Required fields missing or they were invalid'})
         }
     };
 

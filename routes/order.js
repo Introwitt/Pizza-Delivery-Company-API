@@ -55,8 +55,9 @@ orderHandlers._order.post = function(data, callback){
                     if(!err && userData){
                         // Give the information regarding cart items
                         var cartItems = typeof(userData.cart) == "object" && userData.cart instanceof Array ? userData.cart : false;
+                        console.log(cartItems.length);
 
-                        if(cartItems){
+                        if(cartItems.length !== 0){
                             cartHandlers.fetchCart(cartItems,function(err, cartData){
 
                                 // Create orderObject for the specified user
@@ -159,11 +160,11 @@ orderHandlers._order.post = function(data, callback){
                                                                 orderObject.totalAmount += " cents";
                                                                 callback(200,{"Your Order" : orderObject});
                                                             } else{
-                                                                callback(500, {"Error" : "Couldn't update the user data for new order"});
+                                                                callback(500, {"Error" : "Couldn't update the users' data for new order"});
                                                             }
                                                         })                                                        
                                                     } else{
-                                                        callback(400, {"Error": "Could not email the order receipt"})
+                                                        callback(500, {"Error": "Could not email the order receipt"})
                                                     }
                                                 });
 
@@ -201,7 +202,7 @@ orderHandlers._order.post = function(data, callback){
                             });
 
                         } else{
-                            callback(400,{"Error": "No items in the cart to place order"})
+                            callback(404,{"Error": "No items in the cart to place order"})
                         }                        
                                                                
                     } else{
@@ -209,11 +210,11 @@ orderHandlers._order.post = function(data, callback){
                     }
                 })
             } else{
-                callback(404, {Error : "Invalid Token or token missing"});
+                callback(403, {"Error" : "Unauthorized Access"});
             }
             });                            
     } else{
-        callback(400,{"Error" : "Phone no missing or invalid"});
+        callback(400,{"Error" : "Required fields missing or they were invalid"});
     }
 }
 
@@ -238,15 +239,15 @@ orderHandlers._order.get = function(data, callback){
                     if(isValidToken){
                         callback(200, orderData);
                     } else{
-                        callback(400,{"Error" : "Not authorised"});
+                        callback(403,{"Error" : "Unauthorized Access"});
                     }
                 })    
             } else{
-                callback(400, {"Error" : "Order Id not found"});
+                callback(404, {"Error" : "Order not found"});
             }
         })
     } else{
-        callback(400,{"Error" : "Missing required fields"});
+        callback(400,{"Error" : "Required fields missing or they were invalid"});
     }
 }
         

@@ -38,17 +38,17 @@ menuHandlers.menu = function(data, callback){
                         } else{
                             callback(err,data);
                         }
-                });               
+                    });               
+                } else{
+                    callback(405, {"Error" : "Method not allowed"});
+                }
             } else{
-                callback(404, {Error : "Not found"});
+                callback(403,{"Error": "Unauthorized Access"});
             }
-        } else{
-            callback(403,{"Error": "Missing required token in header or token is invalid"});
-        }
-    })
+        })
               
     } else{
-        callback(400, {Error : "Missing required field"});
+        callback(400, {"Error" : "Required fields missing or they were invalid"});
     }
 }
 

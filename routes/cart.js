@@ -69,8 +69,7 @@ cartHandlers._cart.post = function(data, callback){
                                 "size"        : size,
                                 "crust"       : crust,
                                 "amount"      : helpers.calculateCartAmount(itemData.price[size],crust)
-                            }
-                           
+                            }                           
 
                             // Save the object
                             _data.create("cart", cartId, cartObject, function(err){
@@ -85,29 +84,29 @@ cartHandlers._cart.post = function(data, callback){
                                             // Return the data about the new checkObject
                                             callback(200, cartObject);
                                         } else{
-                                            callback(500, {"Error" : "Couldn't update the user data for new cart item"});
+                                            callback(500, {"Error" : "Couldn't update the  specified users' data for new cart item"});
                                         }
                                     })
                                 } else{
-                                    callback(500, {"Error" : "Couldn't add your item to the cart"});
+                                    callback(500, {"Error" : "Couldn't add the item to the specified users' cart"});
                                 }         
                             })
                         } else{
-                            callback(400, {"Error" : "Invalid Item Id"})
+                            callback(404, {"Error" : "Item Id not found"})
                         }
                     });
                 
                     } else{
-                        callback(400,{"Error" : "Invalid phone no"});
+                        callback(404,{"Error" : "User not found"});
                     } 
                 })
                     
             } else{
-                callback(400, {"Error" : "Token missing or invalid"});
+                callback(403, {"Error" : "Unauthorized Access"});
             }
         })       
     } else{
-        callback(400, {"Error" : "Missing required fields"});
+        callback(400, {"Error" : "Required fields missing or they were invalid"});
     }    
 }
 
@@ -142,12 +141,12 @@ cartHandlers._cart.get = function(data, callback){
                     }
                 })
                 } else{
-                    callback(404, {Error : "Invalid Token or token missing"});
+                    callback(403, {"Error" : "Unauthorized Access"});
                 }
             });
 
         } else{
-               callback(400, {"Error" : "Missing required field"});
+               callback(400, {"Error" : "Required fields missing or they were invalid"});
         }
 }
 
@@ -197,21 +196,21 @@ cartHandlers._cart.put = function(data, callback){
                             })
                               
                         } else{
-                            callback(400, {"Error": "Couln't update the cart data"});
+                            callback(500, {"Error": "Couln't update the cart data"});
                         }
                     });
                         
                 } else{
-                    callback(400, {"Error": "Missing required fields"});
+                    callback(400, {"Error": "Required fields missing or they were invalid"});
                 }
                                       
             } else{
-                callback(400, {"Error": "Token id missing or invalid"});
+                callback(403, {"Error": "Unauthorized Access"});
             }
             })
         })    
     } else{
-        callback(400,{"Error": "Invalid cart id"});
+        callback(400,{"Error": "Required fields missing or they were invalid"});
     }
 }
 
@@ -252,12 +251,12 @@ cartHandlers._cart.delete = function(data, callback){
                                             if(!err){
                                                 callback(200);
                                             } else{
-                                                callback(500, {"Error": "Could not update the users' data"});
+                                                callback(500, {"Error": "Couldn't update the users' data"});
                                             }
                                         })
 
                                     } else{
-                                        callback(400, {"Error" : "The given cart id is invalid for the specified user"})
+                                        callback(404, {"Error" : "User not found"})
                                     }
                                 } else{
                                     callback(500,{"Error" : "Could not find the user for the given cart"})
@@ -265,16 +264,16 @@ cartHandlers._cart.delete = function(data, callback){
                             })
 
                         } else{
-                            callback(500,{"Error" : "Could not delete the cart for the given user"})
+                            callback(500,{"Error" : "Couldn't delete the cart for the given user"})
                         }
                     })
                      
-                 } else{
-                     callback(403);
-                 }
-             });
+                } else{
+                    callback(403,{"Error" : "Unauthorized Access"});
+                }
+            });
         } else{
-            callback(500,{"Error": "Could not read the given cartId"});
+            callback(404,{"Error": "Cart not found"});
         }
     });
 
@@ -289,7 +288,7 @@ cartHandlers.fetchCart = function(cartItems, callback){
     var data =[];
     var length = cartItems.length;
     if(length == undefined){
-        callback(200, {"Message" : "Cart is empty"});
+        callback(404, {"Error" : "Cart is empty"});
     }
     for(i=0; i<length; i++){
         _data.read("cart", cartItems[i], function(err, cartData){

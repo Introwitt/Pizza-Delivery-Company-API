@@ -54,20 +54,20 @@ tokenHandlers._tokens.post = function(data, callback){
                         if(!err){
                             callback(200, tokenObject);
                         } else{
-                            callback(500, {Error: "Couldn't create the token for the user"});
+                            callback(500, {"Error": "Couldn't create the token for the user"});
                         }
                     })
                 } else{
-                    callback(400,{Error:"Password did not match the specified users' stored password"});
+                    callback(400,{"Error":"Invalid password"});
                 }
 
             } else{
-                callback(400,{Error:"Couldn't find the user with the specified phone no"});
+                callback(404,{"Error":"User not found"});
             }
         })
 
     } else{
-        callback(400,{Error : "Missing required fields"});
+        callback(400,{"Error" : "Required fields missing or they were invalid"});
     }
 }
 
@@ -75,6 +75,7 @@ tokenHandlers._tokens.post = function(data, callback){
 // Required Data - token-id
 // Optional data - none
 tokenHandlers._tokens.get = function(data, callback){
+
     // Check if the phone no is valid
    var id = typeof(data.queryStringObject.id) == "string" && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim() : false;
 
@@ -84,11 +85,11 @@ tokenHandlers._tokens.get = function(data, callback){
            if(!err && tokenData){
             callback(200, tokenData);
            } else{
-               callback(404, {Error : "Not found"});
+               callback(404, {"Error" : "Token not found"});
            }
        })
    } else{
-       callback(400, {Error : "Missing required field"});
+       callback(400, {"Error" : "Invalid phone no"});
    }
 
 }
@@ -112,26 +113,25 @@ tokenHandlers._tokens.put = function(data, callback){
                        tokenData.expires= Date.now() + 1000*60*60;
 
                    } else{
-                       callback(400,{Error:"The token has already expired, and can't be extended"});
+                       callback(400,{"Error":"Token has already expired, and can't be extended"});
                    }
                     
                     // Update the token
-
                     _data.update("tokens", id, tokenData, function(err){
                         if(!err){
                             callback(200);
                         } else{
                             console.log(err);
-                            callback(500,{Error : "Couldn't extend tokens' expiration"});
+                            callback(500,{"Error" : "Couldn't extend tokens' expiration"});
                         }
                     })
 
                 } else{
-                    callback(400, {Error : "Token not found"});
+                    callback(404, {"Error" : "Token not found"});
                 }
             })
         } else{
-            callback(400, {Error: "Missing required field"});
+            callback(400, {"Error": "Required fields missing or they were invalid"});
         }
 }
 
@@ -152,18 +152,17 @@ tokenHandlers._tokens.delete = function(data, callback){
                 if(!err){
                     callback(200);
                 } else{
-                    callback(500, {Error: "Couldn't delete the specified token"});
+                    callback(500, {"Error": "Couldn't delete the specified token"});
                 }
             });
         } else{
-            callback(400,{Error: "could not find the specified token"});
+            callback(404,{"Error": "Token not found"});
         }
     });
            
-   } else{
-       callback(400, {Error : "Missing required field"});
-   }
-
+    } else{
+       callback(400, {"Error" : "Required fields missing or they were invalid"});
+    }
 }
 
 
