@@ -177,8 +177,10 @@ RESTful JSON API for Pizza Delivering Company
 ##### Headers:
     token
 ##### Response
-    ![alt text](img/menu1.png)
-    ![alt text](img/menu2.png)
+![screen shot 2018-07-26 at 11 13 02 pm](https://user-images.githubusercontent.com/35345474/43301066-73dbf8f2-9180-11e8-93ba-a4481f5488bf.png)
+![screen shot 2018-07-26 at 11 13 11 pm](https://user-images.githubusercontent.com/35345474/43301069-76cda006-9180-11e8-82d6-9699c17cc588.png)
+
+
 ##### Errors
     400: Required fields missing or they were invalid
     403: Unauthorized access
