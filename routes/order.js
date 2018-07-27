@@ -55,7 +55,7 @@ orderHandlers._order.post = function(data, callback){
                     if(!err && userData){
                         // Give the information regarding cart items
                         var cartItems = typeof(userData.cart) == "object" && userData.cart instanceof Array ? userData.cart : false;
-                        console.log(cartItems.length);
+                      
 
                         if(cartItems.length !== 0){
                             cartHandlers.fetchCart(cartItems,function(err, cartData){
@@ -146,8 +146,7 @@ orderHandlers._order.post = function(data, callback){
                                                     // Callback successfully if the request went through
                                                     if(status == 200 || status == 201){
                                                         // Remove all the cart items
-                                                        userData.cart = [];
-
+                                                        userData.cart=[];                                                                    
                                                         // Add the orderId to the users' data
                                                         var userOrders = typeof(userData.orders) == "object" && userData.orders instanceof Array ? userData.orders : [];
 

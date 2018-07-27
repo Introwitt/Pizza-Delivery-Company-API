@@ -235,10 +235,10 @@ cartHandlers._cart.delete = function(data, callback){
                 // Verify that the token received is valid for the user
                 tokenHandlers._tokens.verifyToken(token, cartData.phone, function(isValidToken){
                 if(isValidToken){
-                    // Delete the given check
+                    // Delete the given cart
                     _data.delete("cart", cartId, function(err){
                         if(!err){
-                            // Look up the user and remove the check from user checksObject
+                            // Look up the user and remove the cart from user cartObject
                             _data.read("users", cartData.phone, function(err, userData){
                                 if(!err && userData){
                                     var userCart = typeof(userData.cart) == "object" && userData.cart instanceof Array ? userData.cart : [];
@@ -256,7 +256,7 @@ cartHandlers._cart.delete = function(data, callback){
                                         })
 
                                     } else{
-                                        callback(404, {"Error" : "User not found"})
+                                        callback(404, {"Error" : "Cart not present with the specified user"});
                                     }
                                 } else{
                                     callback(500,{"Error" : "Could not find the user for the given cart"})

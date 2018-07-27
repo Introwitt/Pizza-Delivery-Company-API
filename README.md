@@ -220,9 +220,11 @@ RESTful JSON API for Pizza Delivering Company
 ##### Path:
     /api/items
 ##### Parameters:
-    name* (Required)    
-    price* (Required) // price is an array for the amount of each size (small, regular, medium)...
-    Example -> price = [10,20,30] 
+    {
+        name* (Required)    
+        price* (Required) // price is an array for the amount of each size (small, regular, medium)...
+        Example -> price = [10,20,30]
+    } 
 ##### Headers:
     none
 ##### Response
@@ -358,7 +360,7 @@ Will delete the cartId from the users' cart field
     400: Required fields missing or they were invalid
     403: Unauthorized access
     404: Cart not found 
-    404: User not found    
+    404: Cart not present with the specified user  
     500: Couldn't delete the cart for the given user
     500: Could not find the user for the given cart
     500: Couldn't update the users' data
@@ -413,7 +415,7 @@ Will delete the cartId from the users' cart field
         }
     }
 ##### Errors
-    400: Required fields missing or they were invalid  
+    400: Required fields missing or they were invalid 
     403: Unauthorized Access
     404: No items in the cart to place order
     404: User not found    

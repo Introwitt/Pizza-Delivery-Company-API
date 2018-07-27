@@ -126,7 +126,7 @@ userHandlers._users.get = function(data, callback){
 // Optional data - firstName, lastName, password (atleast one)
 userHandlers._users.put = function(data, callback){
 
-    var phone = typeof(data.payload.phone) == "string" && data.payload.phone.trim().length == 10 ? data.payload.phone.trim() : false;
+    var phone = typeof(data.queryStringObject.phone) == "string" && data.queryStringObject.phone.trim().length == 10 ? data.queryStringObject.phone.trim() : false;
     var name = typeof(data.payload.name) == "string" && data.payload.name.trim().length > 0 ? data.payload.name.trim() : false;
     var email = typeof(data.payload.email) == "string" && data.payload.email.trim().length > 0 ? data.payload.email.trim() : false;
     var password = typeof(data.payload.password) == "string" && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
