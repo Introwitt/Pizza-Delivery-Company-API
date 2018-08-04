@@ -5,11 +5,11 @@
 */
 
 // Dependencies
-var _data   = require("../lib/data");
-var helpers = require("../lib/helpers");
-var config  = require("../lib/config");
-var path    = require("path");
-var fs      = require("fs");
+var _data         = require("../lib/data");
+var helpers       = require("../lib/helpers");
+var config        = require("../lib/config");
+var path          = require("path");
+var fs            = require("fs");
 var tokenHandlers = require("./tokens");
 
 
@@ -69,8 +69,9 @@ cartHandlers._cart.post = function(data, callback){
                                 "size"        : size,
                                 "crust"       : crust,
                                 "amount"      : helpers.calculateCartAmount(itemData.price[size],crust)
-                            }                           
+                            }
 
+                           
                             // Save the object
                             _data.create("cart", cartId, cartObject, function(err){
                                 if(!err){
@@ -287,7 +288,7 @@ cartHandlers._cart.delete = function(data, callback){
 cartHandlers.fetchCart = function(cartItems, callback){
     var data =[];
     var length = cartItems.length;
-    if(length == undefined){
+    if(length == undefined || length== 0){
         callback(404, {"Error" : "Cart is empty"});
     }
     for(i=0; i<length; i++){
@@ -296,7 +297,6 @@ cartHandlers.fetchCart = function(cartItems, callback){
             var phone = cartData.phone;
 
             // Remove the cart id,item id,name,email before displaying to the user
-            delete cartData.cartId;
             delete cartData.itemId;
             delete cartData.email;
             delete cartData.phone;

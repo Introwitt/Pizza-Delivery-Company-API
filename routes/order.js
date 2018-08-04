@@ -5,13 +5,13 @@
 */
 
 // Dependencies
-var _data   = require("../lib/data");
-var helpers = require("../lib/helpers");
-var config  = require("../lib/config");
-var path    = require("path");
-var fs      = require("fs");
-var https   = require("https");
-var queryString = require("querystring");
+var _data         = require("../lib/data");
+var helpers       = require("../lib/helpers");
+var config        = require("../lib/config");
+var path          = require("path");
+var fs            = require("fs");
+var https         = require("https");
+var queryString   = require("querystring");
 var tokenHandlers = require("./tokens");
 var cartHandlers  = require("./cart");
 
@@ -56,7 +56,6 @@ orderHandlers._order.post = function(data, callback){
                         // Give the information regarding cart items
                         var cartItems = typeof(userData.cart) == "object" && userData.cart instanceof Array ? userData.cart : false;
                       
-
                         if(cartItems.length !== 0){
                             cartHandlers.fetchCart(cartItems,function(err, cartData){
 
@@ -69,6 +68,7 @@ orderHandlers._order.post = function(data, callback){
                                     "email"       : userData.email,
                                     "orderId"     : orderId,
                                     "items"       : cartData.Items,
+                                    "cartId"      : cartData.cartId,
                                     "totalAmount" : helpers.calculateOrderAmount(cartData.Items),    
                                     "paymentProcessed" : false                           
                                 }
@@ -115,7 +115,7 @@ orderHandlers._order.post = function(data, callback){
                                                 // Notify the user using MAILGUN
 
                                                 // Configure the request payload
-                                                var mailgunPayload ={
+                                                var mailgunPayload = {
                                                     "from" : config.mailgun.from,
                                                     "to"   : userData.email,
                                                     "subject" : "Payment Info for orderid " + orderId,
@@ -146,7 +146,7 @@ orderHandlers._order.post = function(data, callback){
                                                     // Callback successfully if the request went through
                                                     if(status == 200 || status == 201){
                                                         // Remove all the cart items
-                                                        userData.cart=[];                                                                    
+                                                        userData.cart=[];                                      
                                                         // Add the orderId to the users' data
                                                         var userOrders = typeof(userData.orders) == "object" && userData.orders instanceof Array ? userData.orders : [];
 
@@ -156,6 +156,7 @@ orderHandlers._order.post = function(data, callback){
                                                         // Save the new user data
                                                         _data.update("users", phone, userData, function(err){
                                                             if(!err){
+                                    
                                                                 orderObject.totalAmount += " cents";
                                                                 callback(200,{"Your Order" : orderObject});
                                                             } else{
@@ -224,29 +225,57 @@ orderHandlers._order.post = function(data, callback){
 orderHandlers._order.get = function(data, callback){
 
     // Receive the required fields
-    var orderId = typeof(data.queryStringObject.id) == "string" && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim(): false;
+    var phone = typeof(data.queryStringObject.phone) == "string" && data.queryStringObject.phone.trim().length == 10 ? data.queryStringObject.phone.trim(): false;
 
-    if(orderId){
-        // Lookup the order
-        _data.read("order",orderId, function(err, orderData){
-            if(!err && orderData){
-                // Get the token from the users
-                var token = typeof(data.headers.token) == "string" ? data.headers.token : false;
+    if(phone){
+        
+        // Get the token from the users
+        var token = typeof(data.headers.token) == "string" ? data.headers.token : false;
 
-                // Verify that the token received is valid for the user
-                tokenHandlers._tokens.verifyToken(token, orderData.phone, function(isValidToken){
-                    if(isValidToken){
-                        callback(200, orderData);
+        // Verify that the token received is valid for the user
+        tokenHandlers._tokens.verifyToken(token, phone, function(isValidToken){
+            if(isValidToken){
+                // Lookup the user 
+                _data.read("users", phone, function(err, userData){
+                    if(!err && userData){
+                        // Give the information regarding orders
+                        var orders = typeof(userData.orders) == "object" && userData.orders instanceof Array ? userData.orders : false;
+                       
+                        orderHandlers.fetchOrders(orders,function(err, orders){
+                                callback(err, orders);
+                        })
                     } else{
-                        callback(403,{"Error" : "Unauthorized Access"});
+                        callback(404,{"Error" : "User not found"}); 
                     }
-                })    
+                })
             } else{
-                callback(404, {"Error" : "Order not found"});
+                callback(403,{"Error" : "Unauthorized Access"});
             }
-        })
+        })            
     } else{
         callback(400,{"Error" : "Required fields missing or they were invalid"});
+    }
+}
+
+// Handler to fetch the cart items
+orderHandlers.fetchOrders = function(orders, callback){
+    var data =[];
+    var length = orders.length;
+    if(length == undefined || length == 0){
+        callback(404, {"Error" : "No items to place order"});
+    }
+    for(i=0; i<length; i++){
+        _data.read("order", orders[i], function(err, orderData){
+
+            orderData.items.forEach(function(order){
+                delete order.cartId;
+            })
+            data.push(orderData.items);
+           
+            if(data.length == (orders.length)){
+                callback(200,{"Your Orders": data});
+            }
+        })
     }
 }
         
