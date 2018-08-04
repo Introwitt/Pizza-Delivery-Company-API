@@ -375,9 +375,9 @@ Will delete the cartId from the users' cart field
 
 #### Order/GET      
 ##### Path:
-    /api/orders?id=string
+    /api/orders?phone=********789
 ##### Parameters:
-    id* (Required) // orderId   
+    phone* (Required)  
 ##### Headers:
     token* (Required)
 ##### Response
