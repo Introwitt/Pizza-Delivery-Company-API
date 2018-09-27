@@ -127,7 +127,7 @@ userHandlers._users.get = function(data, callback){
 // Optional data - firstName, lastName, password (atleast one)
 userHandlers._users.put = function(data, callback){
 
-    var phone = typeof(data.queryStringObject.phone) == "string" && data.queryStringObject.phone.trim().length == 10 ? data.queryStringObject.phone.trim() : false;
+    var phone = typeof(data.payload.phone) == "string" && data.payload.phone.trim().length == 10 ? data.payload.phone.trim() : false;
     var name = typeof(data.payload.name) == "string" && data.payload.name.trim().length > 0 ? data.payload.name.trim() : false;
     var email = typeof(data.payload.email) == "string" && data.payload.email.trim().length > 0 ? data.payload.email.trim() : false;
     var password = typeof(data.payload.password) == "string" && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
@@ -209,27 +209,52 @@ userHandlers._users.delete = function(data, callback){
         tokenHandlers._tokens.verifyToken(token, phone, function(isValidToken){
             if(isValidToken){
                 // Lookup the user
-                _data.read('users',phone,function(err,data){
-                if(!err && data){
-                    _data.delete('users',phone,function(err){
-                        if(!err){
-                            callback(200);
-                        } else {
-                            callback(500,{"Error" : "Couldn't delete the specified user"});
-                        }
-                    });
-                } else {
-                    callback(404,{"Error" : "User not found"});
-                }
-            });
+                _data.read('users',phone,function(err,userData){
+                    if(!err && userData){
+                        _data.delete('users',phone,function(err){
+                            if(!err){
+                                // Delete each of the orders associated with the user
+                                var userOrders = typeof(userData.orders) == 'object' && userData.orders instanceof Array ? userData.orders : [];
+                                var ordersToDelete = userOrders.length;
+                                if(ordersToDelete > 0){
+                                    var ordersDeleted = 0;
+                                    var deletionErrors = false;
+                                    // Loop through the orders
+                                    userOrders.forEach(function(orderId){
+                                        // Delete the order
+                                        _data.delete('order',orderId,function(err){
+                                            if(err){
+                                                deletionErrors = true;
+                                            }
+                                            ordersDeleted++;
+                                            if(ordersDeleted == ordersToDelete){
+                                                if(!deletionErrors){
+                                                    callback(200);
+                                                } else {
+                                                    callback(500,{'Error' : "Errors encountered while attempting to delete all of the user's orders. All orders may not have been deleted from the system successfully."})                       
+                                                }
+                                            }    
+                                        })                                     
+                                    })
+                                } else{
+                                    callback(200);
+                                }
+                            } else {
+                                callback(500,{"Error" : "Couldn't delete the specified user"});
+                            }
+                        });
+                    } else {
+                        callback(404,{"Error" : "User not found"});
+                    }
+                });
             } else{
                 callback(403,{"Error": "Unauthorized Access(Token missing or invalid)"});
             }
         });       
-        } else {
-            callback(400,{"Error" : 'Required fields missing or they were invalid'})
-        }
-    };
+    } else {
+        callback(400,{"Error" : 'Required fields missing or they were invalid'})
+    }
+};
 
 
 // Export the handlers

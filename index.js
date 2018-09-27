@@ -14,6 +14,11 @@ var app = {};
 app.init = function(){
     // Start the server
     server.init();
+
+    // Start the CLI but make sure it lasts
+    setTimeout(function(){
+        cli.init();
+    }, 50)
 }
 
 // Execute

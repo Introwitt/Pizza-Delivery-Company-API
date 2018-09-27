@@ -58,7 +58,7 @@ RESTful JSON API for Pizza Delivering Company
 
 #### User/PUT      
 ##### Path:
-    /api/users?phone=********789
+    /api/users
 ##### Parameters:
     phone*(Required)
     (Atleast one of the below fields)

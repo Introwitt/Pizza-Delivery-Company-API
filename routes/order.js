@@ -74,7 +74,16 @@ orderHandlers._order.post = function(data, callback){
                                 }
                                 
                                 // Process the payment using STRIPE
-                                
+                                // helpers.processPayment(orderObject.totalAmount, function(err){
+                                //     if(!err){
+                                        
+                                //         // Notify the user using MAILGUN
+                                //         helpers.sendMail()
+
+                                //     } else{
+                                //         callback({"Error" :"Unable to proecess the payment"})
+                                //     }
+                                // })
                                 // Configure the request payload
                                 var stripePayload = {
                                     "currency"    : "usd",
